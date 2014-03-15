@@ -127,8 +127,7 @@ public class CrawlConfig {
 	 */
 	private String proxyPassword = null;
 
-	public CrawlConfig() {
-	}
+	public CrawlConfig() {}
 
 	/**
 	 * Validates the configs specified by this instance.

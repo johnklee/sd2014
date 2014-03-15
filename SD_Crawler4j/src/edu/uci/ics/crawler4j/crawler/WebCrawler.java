@@ -41,13 +41,13 @@ import java.util.List;
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
 public class WebCrawler implements Runnable {
-
 	protected static final Logger logger = Logger.getLogger(WebCrawler.class.getName());
 
 	/**
 	 * The id associated to the crawler thread running this instance
 	 */
 	protected int myId;
+	public static int DeepLimit=-1;
 
 	/**
 	 * The controller instance that has created this crawler thread. This
@@ -257,16 +257,21 @@ public class WebCrawler implements Runnable {
 	}
 
 	private void processPage(WebURL curURL) {
-		if (curURL == null) {
+		if (curURL == null) 
+		{
 			return;
 		}
+		logger.info(String.format("Process %s...", curURL.getURL()));
 		PageFetchResult fetchResult = null;
 		try {
 			fetchResult = pageFetcher.fetchHeader(curURL);
 			int statusCode = fetchResult.getStatusCode();
 			handlePageStatusCode(curURL, statusCode, CustomFetchStatus.getStatusDescription(statusCode));
-			if (statusCode != HttpStatus.SC_OK) {
-				if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
+			if (statusCode != HttpStatus.SC_OK) 
+			{
+				if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY || 
+				    statusCode == HttpStatus.SC_MOVED_TEMPORARILY) 
+				{
 					if (myController.getConfig().isFollowRedirects()) {
 						String movedToUrl = fetchResult.getMovedToUrl();
 						if (movedToUrl == null) {
@@ -285,18 +290,26 @@ public class WebCrawler implements Runnable {
 						webURL.setDepth(curURL.getDepth());
 						webURL.setDocid(-1);
 						webURL.setAnchor(curURL.getAnchor());
-						if (shouldVisit(webURL) && robotstxtServer.allows(webURL)) {
+						if (shouldVisit(webURL) && robotstxtServer.allows(webURL)) 
+						{
 							webURL.setDocid(docIdServer.getNewDocID(movedToUrl));
 							frontier.schedule(webURL);
 						}
 					}
-				} else if (fetchResult.getStatusCode() == CustomFetchStatus.PageTooBig) {
-					logger.info("Skipping a page which was bigger than max allowed size: " + curURL.getURL());
+				} 
+				else if (fetchResult.getStatusCode() == CustomFetchStatus.PageTooBig) 
+				{
+					logger.warn("Skipping a page which was bigger than max allowed size: " + curURL.getURL());
+				}
+				else
+				{
+					logger.warn(String.format("URL='%s' with Status Code=%d...", fetchResult.getOriginalURL(), fetchResult.getStatusCode()));
 				}
 				return;
 			}
 
-			if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) {
+			if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) 
+			{
 				if (docIdServer.isSeenBefore(fetchResult.getFetchedUrl())) {
 					// Redirect page is already seen
 					return;
@@ -308,12 +321,14 @@ public class WebCrawler implements Runnable {
 			Page page = new Page(curURL);
 			int docid = curURL.getDocid();
 
-			if (!fetchResult.fetchContent(page)) {
+			if (!fetchResult.fetchContent(page)) 
+			{
 				onContentFetchError(curURL);
 				return;
 			}
 
-			if (!parser.parse(page, curURL.getURL())) {
+			if (!parser.parse(page, curURL.getURL())) 
+			{
 				onParseError(curURL);
 				return;
 			}
@@ -347,15 +362,19 @@ public class WebCrawler implements Runnable {
 				}
 				frontier.scheduleAll(toSchedule);
 			}
-			try {
+			try 
+			{
 				visit(page);
 			} catch (Exception e) {
 				logger.error("Exception while running the visit method. Message: '" + e.getMessage() + "' at " + e.getStackTrace()[0]);
 			}
 
-		} catch (Exception e) {
+		} 
+		catch (Exception e) 
+		{
 			logger.error(e.getMessage() + ", while processing: " + curURL.getURL());
-		} finally {
+		} finally 
+		{
 			if (fetchResult != null) {
 				fetchResult.discardContentIfNotConsumed();
 			}

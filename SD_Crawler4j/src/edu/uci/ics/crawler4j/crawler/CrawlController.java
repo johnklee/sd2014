@@ -39,7 +39,7 @@ import java.util.List;
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
 public class CrawlController extends Configurable {
-
+	static int	CheckOthersWait = 5;
 	static final Logger logger = Logger.getLogger(CrawlController.class.getName());
 
 	/**
@@ -145,7 +145,8 @@ public class CrawlController extends Configurable {
 			final List<Thread> threads = new ArrayList<Thread>();
 			final List<T> crawlers = new ArrayList<T>();
 
-			for (int i = 1; i <= numberOfCrawlers; i++) {
+			for (int i = 1; i <= numberOfCrawlers; i++) 
+			{
 				T crawler = _c.newInstance();
 				Thread thread = new Thread(crawler, "Crawler " + i);
 				crawler.setThread(thread);
@@ -187,15 +188,17 @@ public class CrawlController extends Configurable {
 										someoneIsWorking = true;
 									}
 								}
-								if (!someoneIsWorking) {
+								if (!someoneIsWorking) 
+								{
 									// Make sure again that none of the threads
 									// are
 									// alive.
 									logger.info("It looks like no thread is working, waiting for 10 seconds to make sure...");
-									sleep(10);
+									sleep(CheckOthersWait);
 
 									someoneIsWorking = false;
-									for (int i = 0; i < threads.size(); i++) {
+									for (int i = 0; i < threads.size(); i++) 
+									{
 										Thread thread = threads.get(i);
 										if (thread.isAlive() && crawlers.get(i).isNotWaitingForNewURLs()) {
 											someoneIsWorking = true;

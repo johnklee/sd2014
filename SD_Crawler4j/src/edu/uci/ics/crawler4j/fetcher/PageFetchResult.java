@@ -37,6 +37,7 @@ public class PageFetchResult {
 	protected int statusCode;
 	protected HttpEntity entity = null;
 	protected Header[] responseHeaders = null;
+	protected String originalURL = null;
 	protected String fetchedUrl = null;
 	protected String movedToUrl = null;
 
@@ -108,4 +109,11 @@ public class PageFetchResult {
 		this.movedToUrl = movedToUrl;
 	}
 
+	public String getOriginalURL() {
+		return originalURL;
+	}
+
+	public void setOriginalURL(String originalURL) {
+		this.originalURL = originalURL;
+	}
 }

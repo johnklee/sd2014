@@ -75,7 +75,8 @@ public class PageFetcher extends Configurable {
 
 	protected IdleConnectionMonitorThread connectionMonitorThread = null;
 
-	public PageFetcher(CrawlConfig config) {
+	public PageFetcher(CrawlConfig config) 
+	{
 		super(config);
 
 		HttpParams params = new BasicHttpParams();
@@ -142,13 +143,16 @@ public class PageFetcher extends Configurable {
 
 	}
 
-	public PageFetchResult fetchHeader(WebURL webUrl) {
+	public PageFetchResult fetchHeader(WebURL webUrl) 
+	{
 		PageFetchResult fetchResult = new PageFetchResult();
 		String toFetchURL = webUrl.getURL();
+		fetchResult.setOriginalURL(toFetchURL);
 		HttpGet get = null;
 		try {
 			get = new HttpGet(toFetchURL);
-			synchronized (mutex) {
+			synchronized (mutex) 
+			{
 				long now = (new Date()).getTime();
 				if (now - lastFetchTime < config.getPolitenessDelay()) {
 					Thread.sleep(config.getPolitenessDelay() - (now - lastFetchTime));
@@ -161,9 +165,12 @@ public class PageFetcher extends Configurable {
 			fetchResult.setResponseHeaders(response.getAllHeaders());
 			
 			int statusCode = response.getStatusLine().getStatusCode();
-			if (statusCode != HttpStatus.SC_OK) {
-				if (statusCode != HttpStatus.SC_NOT_FOUND) {
-					if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY) {
+			if (statusCode != HttpStatus.SC_OK) 
+			{
+				if (statusCode != HttpStatus.SC_NOT_FOUND) 
+				{
+					if (statusCode == HttpStatus.SC_MOVED_PERMANENTLY || statusCode == HttpStatus.SC_MOVED_TEMPORARILY) 
+					{
 						Header header = response.getFirstHeader("Location");
 						if (header != null) {
 							String movedToUrl = header.getValue();
@@ -172,12 +179,12 @@ public class PageFetcher extends Configurable {
 						} 
 						fetchResult.setStatusCode(statusCode);
 						return fetchResult;
-					}
+					} 
 					logger.info("Failed: " + response.getStatusLine().toString() + ", while fetching " + toFetchURL);
-				}
+				} // // if (statusCode != HttpStatus.SC_NOT_FOUND) 
 				fetchResult.setStatusCode(response.getStatusLine().getStatusCode());
 				return fetchResult;
-			}
+			} // if (statusCode != HttpStatus.SC_OK) 
 
 			fetchResult.setFetchedUrl(toFetchURL);
 			String uri = get.getURI().toString();
