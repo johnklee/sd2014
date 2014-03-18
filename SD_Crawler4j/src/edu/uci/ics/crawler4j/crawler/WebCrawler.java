@@ -310,7 +310,8 @@ public class WebCrawler implements Runnable {
 
 			if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) 
 			{
-				if (docIdServer.isSeenBefore(fetchResult.getFetchedUrl())) {
+				if (docIdServer.isSeenBefore(fetchResult.getFetchedUrl())) 
+				{
 					// Redirect page is already seen
 					return;
 				}
