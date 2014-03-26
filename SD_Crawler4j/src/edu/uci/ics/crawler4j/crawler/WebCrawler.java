@@ -255,6 +255,15 @@ public class WebCrawler implements Runnable {
 		// Do nothing by default
 		// Sub-classed can override this to add their custom functionality
 	}
+	
+	/**
+	 * Classes that extends WebCrawler can overwrite this function to process
+	 * the invalid URL or link.
+	 */
+	public void fail(WebURL curURL, PageFetchResult fetchResult)
+	{
+		
+	}
 
 	private void processPage(WebURL curURL) {
 		if (curURL == null) 
@@ -305,8 +314,9 @@ public class WebCrawler implements Runnable {
 				{
 					logger.warn(String.format("URL='%s' with Status Code=%d...", fetchResult.getOriginalURL(), fetchResult.getStatusCode()));
 				}
+				fail(curURL, fetchResult);
 				return;
-			}
+			} // if (statusCode != HttpStatus.SC_OK) 
 
 			if (!curURL.getURL().equals(fetchResult.getFetchedUrl())) 
 			{

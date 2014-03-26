@@ -39,7 +39,9 @@ import java.util.List;
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
 public class CrawlController extends Configurable {
-	static int	CheckOthersWait = 5;
+	public static int				CheckOthersWait = 5;
+	public static int 	 			CleanUpWait = 5;
+	public static int				DConfirmWait = 5;
 	static final Logger logger = Logger.getLogger(CrawlController.class.getName());
 
 	/**
@@ -138,7 +140,9 @@ public class CrawlController extends Configurable {
 		this.start(_c, numberOfCrawlers, false);
 	}
 
-	protected <T extends WebCrawler> void start(final Class<T> _c, final int numberOfCrawlers, boolean isBlocking) {
+	protected <T extends WebCrawler> void start(final Class<T> _c, 
+			                                    final int numberOfCrawlers, 
+			                                    boolean isBlocking) {
 		try {
 			finished = false;
 			crawlersLocalData.clear();
@@ -169,9 +173,11 @@ public class CrawlController extends Configurable {
 							while (true) {
 								sleep(10);
 								boolean someoneIsWorking = false;
-								for (int i = 0; i < threads.size(); i++) {
+								for (int i = 0; i < threads.size(); i++) 
+								{
 									Thread thread = threads.get(i);
-									if (!thread.isAlive()) {
+									if (!thread.isAlive()) 
+									{
 										if (!shuttingDown) {
 											logger.info("Thread " + i + " was dead, I'll recreate it.");
 											T crawler = _c.newInstance();
@@ -184,7 +190,9 @@ public class CrawlController extends Configurable {
 											crawlers.remove(i);
 											crawlers.add(i, crawler);
 										}
-									} else if (crawlers.get(i).isNotWaitingForNewURLs()) {
+									} 
+									else if (crawlers.get(i).isNotWaitingForNewURLs()) 
+									{
 										someoneIsWorking = true;
 									}
 								}
@@ -193,7 +201,7 @@ public class CrawlController extends Configurable {
 									// Make sure again that none of the threads
 									// are
 									// alive.
-									logger.info("It looks like no thread is working, waiting for 10 seconds to make sure...");
+									logger.info(String.format("It looks like no thread is working, waiting for %d seconds to make sure...", CheckOthersWait));
 									sleep(CheckOthersWait);
 
 									someoneIsWorking = false;
@@ -210,8 +218,8 @@ public class CrawlController extends Configurable {
 											if (queueLength > 0) {
 												continue;
 											}
-											logger.info("No thread is working and no more URLs are in queue waiting for another 10 seconds to make sure...");
-											sleep(10);
+											logger.info(String.format("No thread is working and no more URLs are in queue waiting for another %d seconds to make sure...", DConfirmWait));
+											sleep(DConfirmWait);
 											queueLength = frontier.getQueueLength();
 											if (queueLength > 0) {
 												continue;
@@ -224,13 +232,14 @@ public class CrawlController extends Configurable {
 										// waiting for new URLs and they should
 										// stop
 										frontier.finish();
-										for (T crawler : crawlers) {
+										for (T crawler : crawlers) 
+										{
 											crawler.onBeforeExit();
 											crawlersLocalData.add(crawler.getMyLocalData());
 										}
 
-										logger.info("Waiting for 10 seconds before final clean up...");
-										sleep(10);
+										logger.info(String.format("Waiting for %d seconds before final clean up...", CleanUpWait));
+										sleep(CleanUpWait);
 
 										frontier.close();
 										docIdServer.close();
@@ -374,7 +383,8 @@ public class CrawlController extends Configurable {
 	 *            the document id that you want to be assigned to this URL.
 	 * 
 	 */
-	public void addSeenUrl(String url, int docId) {
+	public void addSeenUrl(String url, int docId) 
+	{
 		String canonicalUrl = URLCanonicalizer.getCanonicalURL(url);
 		if (canonicalUrl == null) {
 			logger.error("Invalid Url: " + url);
@@ -433,6 +443,11 @@ public class CrawlController extends Configurable {
 
 	public boolean isShuttingDown() {
 		return shuttingDown;
+	}
+	
+	public synchronized void crawlerCallback(Page page)
+	{
+		/*MyCrawler will call this to forward processed page*/
 	}
 
 	/**

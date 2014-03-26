@@ -27,7 +27,7 @@ import com.sleepycat.persist.model.PrimaryKey;
  */
 
 @Entity
-public class WebURL implements Serializable {
+public class WebURL implements Serializable, Comparable<WebURL> {
 
 	private static final long serialVersionUID = 1L;
 
@@ -198,6 +198,11 @@ public class WebURL implements Serializable {
 
 	public void setPriority(byte priority) {
 		this.priority = priority;
+	}
+
+	@Override
+	public int compareTo(WebURL obj) {
+		return this.url.compareTo(obj.url);
 	}	
 
 }

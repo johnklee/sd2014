@@ -189,7 +189,8 @@ public class PageFetcher extends Configurable {
 			fetchResult.setFetchedUrl(toFetchURL);
 			String uri = get.getURI().toString();
 			if (!uri.equals(toFetchURL)) {
-				if (!URLCanonicalizer.getCanonicalURL(uri).equals(toFetchURL)) {
+				if (!URLCanonicalizer.getCanonicalURL(uri).equals(toFetchURL)) 
+				{
 					fetchResult.setFetchedUrl(uri);
 				}
 			}
