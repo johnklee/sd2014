@@ -17,8 +17,19 @@
 
 package edu.uci.ics.crawler4j.crawler;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Observer;
+
+import ntu.sd.utils.CrawlerObservable;
+
+import org.apache.log4j.Logger;
+
 import com.sleepycat.je.Environment;
 import com.sleepycat.je.EnvironmentConfig;
+
+import edu.uci.ics.crawler4j.fetcher.PageFetchResult;
 import edu.uci.ics.crawler4j.fetcher.PageFetcher;
 import edu.uci.ics.crawler4j.frontier.DocIDServer;
 import edu.uci.ics.crawler4j.frontier.Frontier;
@@ -26,11 +37,6 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.url.URLCanonicalizer;
 import edu.uci.ics.crawler4j.url.WebURL;
 import edu.uci.ics.crawler4j.util.IO;
-import org.apache.log4j.Logger;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * The controller that manages a crawling session. This class creates the
@@ -42,7 +48,8 @@ public class CrawlController extends Configurable {
 	public static int				CheckOthersWait = 5;
 	public static int 	 			CleanUpWait = 5;
 	public static int				DConfirmWait = 5;
-	static final Logger logger = Logger.getLogger(CrawlController.class.getName());
+	static final Logger 			logger = Logger.getLogger(CrawlController.class.getName());
+	public static CrawlerObservable	observable= new CrawlerObservable();
 
 	/**
 	 * The 'customData' object can be used for passing custom crawl-related
@@ -445,9 +452,36 @@ public class CrawlController extends Configurable {
 		return shuttingDown;
 	}
 	
-	public synchronized void crawlerCallback(Page page)
+	public synchronized void fCallback(WebURL url, PageFetchResult pr)
 	{
-		/*MyCrawler will call this to forward processed page*/
+		/*Crawler will call this to forward failed processed result*/
+		observable.pageFail(url, pr);
+	}
+	
+	public synchronized void sCallback(Page page)
+	{
+		/*Crawler will call this to forward successful processed page*/
+		observable.pageDone(page);
+	}
+	
+	public void addObserver(Observer o)
+	{
+		observable.addObserver(o);
+	}
+	
+	public void deleteObserver(Observer o)
+	{
+		observable.deleteObserver(o);
+	}
+	
+	public void deleteObservers()
+	{
+		observable.deleteObservers();
+	}
+	
+	public int countObservers()
+	{
+		return observable.countObservers();
 	}
 
 	/**

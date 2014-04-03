@@ -315,6 +315,7 @@ public class WebCrawler implements Runnable {
 					logger.warn(String.format("URL='%s' with Status Code=%d...", fetchResult.getOriginalURL(), fetchResult.getStatusCode()));
 				}
 				fail(curURL, fetchResult);
+				myController.fCallback(curURL, fetchResult);
 				return;
 			} // if (statusCode != HttpStatus.SC_OK) 
 
@@ -376,6 +377,7 @@ public class WebCrawler implements Runnable {
 			try 
 			{
 				visit(page);
+				myController.sCallback(page);
 			} catch (Exception e) {
 				logger.error("Exception while running the visit method. Message: '" + e.getMessage() + "' at " + e.getStackTrace()[0]);
 			}
