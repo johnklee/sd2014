@@ -35,9 +35,12 @@ public class IO {
 		File[] files = folder.listFiles();
 		for (File file : files) {
 			if (file.isFile()) {
-				if (!file.delete()) {
+				if (!file.delete()) 
+				{
+					//System.err.printf("Fail to delete %s!\n", file.getAbsolutePath());
 					return false;
 				}
+				//else System.out.printf("Delete %s!\n", file.getAbsolutePath());
 			} else {
 				if (!deleteFolder(file)) {
 					return false;

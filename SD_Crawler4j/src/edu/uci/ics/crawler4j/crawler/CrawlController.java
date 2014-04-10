@@ -94,7 +94,18 @@ public class CrawlController extends Configurable {
 		}
 
 		boolean resumable = config.isResumableCrawling();
-
+		init(pageFetcher, robotstxtServer, resumable);
+	}
+	
+	public void init()throws Exception {init(false);}
+	public void init(boolean resumable) throws Exception
+	{
+		init(new PageFetcher(this.getConfig()), this.getRobotstxtServer(), resumable);
+	}
+	
+	public void init(PageFetcher pageFetcher, RobotstxtServer robotstxtServer, boolean resumable) throws Exception
+	{
+		
 		EnvironmentConfig envConfig = new EnvironmentConfig();
 		envConfig.setAllowCreate(true);
 		envConfig.setTransactional(resumable);
@@ -107,10 +118,23 @@ public class CrawlController extends Configurable {
 			}
 		}
 		if (!resumable) {
+			logger.info(String.format("Clean environment=%s...", envHome.getAbsolutePath()));
 			IO.deleteFolderContents(envHome);
 		}
 
-		Environment env = new Environment(envHome, envConfig);
+		Environment env = new Environment(envHome, envConfig);		
+		if(frontier!=null && !frontier.isFinished())
+		{			
+			frontier.finish();
+			frontier.sync();
+			frontier.close();
+			frontier = null;
+		}
+		if(docIdServer!=null)
+		{
+			docIdServer.close();
+			docIdServer = null;
+		}
 		docIdServer = new DocIDServer(env, config);
 		frontier = new Frontier(env, config, docIdServer);
 
@@ -352,6 +376,7 @@ public class CrawlController extends Configurable {
 			docId = docIdServer.getDocId(canonicalUrl);
 			if (docId > 0) {
 				// This URL is already seen.
+				//System.out.printf("\t[Test] URL='%s' has already seen!\n", pageUrl);
 				return;
 			}
 			docId = docIdServer.getNewDocID(canonicalUrl);
@@ -490,8 +515,9 @@ public class CrawlController extends Configurable {
 	 * process new pages.
 	 */
 	public void shutdown() {
-		logger.info("Shutting down...");
+		logger.info("Shutting down...");		
 		this.shuttingDown = true;
 		frontier.finish();
+		//frontier.close();
 	}
 }

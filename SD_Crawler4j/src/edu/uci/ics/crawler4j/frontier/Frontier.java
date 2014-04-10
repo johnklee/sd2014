@@ -34,9 +34,7 @@ import java.util.List;
 public class Frontier extends Configurable {
 
 	protected static final Logger logger = Logger.getLogger(Frontier.class.getName());
-
 	protected WorkQueues workQueues;
-
 	protected InProcessPagesDB inProcessPages;
 
 	protected final Object mutex = new Object();
@@ -193,6 +191,7 @@ public class Frontier extends Configurable {
 		sync();
 		workQueues.close();
         counters.close();
+        //docIdServer.close();
 	}
 
 	public void finish() {

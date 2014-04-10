@@ -1,6 +1,8 @@
 package ntu.sd.utils;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,7 +15,10 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
 
+import ntu.sd.utils.SiTree.Node;
+
 import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
 import demo.MyCrawler;
@@ -29,12 +34,12 @@ import edu.uci.ics.crawler4j.robotstxt.RobotstxtServer;
 import edu.uci.ics.crawler4j.url.WebURL;
 import flib.util.TimeStr;
 import flib.util.Tuple;
-import ntu.sd.utils.SiTree.Node;
 
 public class SiTree implements Observer, Iterable<Node>{
-	public EIterWay iterWay = EIterWay.BFS;
+	public EIterWay 			iterWay = EIterWay.BFS;
 	public HashMap<String,Node> nodeMap = new HashMap<String,Node>();
-	Node root = null;
+	public Node 				root = null;
+	static final Logger 		logger = Logger.getLogger(SiTree.class.getName());
 		
 	public enum EFileType{
 		HTML,TXT,BINARY
@@ -190,11 +195,49 @@ public class SiTree implements Observer, Iterable<Node>{
 	//public SiTree(String seed){initialize(seed);}
 	public SiTree(){}
 	
-	public void initialize(String seed)
+	/**
+	 * BD: Free resource in memory
+	 */
+	public void close()
 	{
-		/*root = new Node(seed);
-		nodeMap.put(seed, root);*/
+		if(root!=null) root = null;
+		nodeMap.clear();
 	}
+	
+	public int outputTo(File dir)
+	{
+		if(root!=null && dir.isDirectory())
+		{		
+			try
+			{
+				HashMap<String,Integer> docMap = new HashMap<String,Integer>();
+				for(Node node:nodeMap.values())
+				{
+					if(node.isValid)
+					{										
+						int did = node.url.getDocid();
+						docMap.put(node.url.getURL(), did);
+						File output = new File(dir,String.valueOf(did));
+						output.createNewFile();
+						FileOutputStream fos = new FileOutputStream(output);
+						fos.write(node.page.getContentData());
+						System.out.printf("\t[Test] Output %s...Done!\n", output.getAbsolutePath());
+						fos.close();						
+					}
+				}
+				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(dir, "DocMap.obj")));
+				oos.writeObject(docMap);
+				oos.close();
+			}
+			catch(Exception e)
+			{
+				logger.error("Fail to dump memory!");
+				e.printStackTrace();
+			}
+		}
+		return -1;
+	}
+	
 	
 	public Node dfsSearchRC(String url){return _dfsSearchRC(root, url);}
 	protected Node _dfsSearchRC(Node node, String url)
@@ -260,6 +303,16 @@ public class SiTree implements Observer, Iterable<Node>{
     	return null;
     }
 
+    /**
+     * Callback of Observer
+     * @param obs
+     * 		  the registered Observable object.
+     * @param obj
+     *  	  the Observed event which is a Tuple class.<br/>
+     *  	  - Tuple(0): True if the crawling success; False otherwise. <br/>
+     *        - Tuple(1): If Tuple(0)=True, here is Page object; otherwise WebURL object.
+     *        - Tuple(2): Only exist when Tuple(0)=false. PageFetchResult object.
+     */
 	@Override
 	public void update(Observable obs, Object obj) {
 		Tuple rt = (Tuple)obj;	
@@ -377,6 +430,7 @@ public class SiTree implements Observer, Iterable<Node>{
          */
         config.setResumableCrawling(false);
         config.setIncludeBinaryContentInCrawling(true);
+        config.setMaxDownloadSize(10*config.MB);
         
         /*
          * Instantiate the controller for this crawl.
@@ -391,7 +445,8 @@ public class SiTree implements Observer, Iterable<Node>{
          * URLs that are fetched and then the crawler starts following links
          * which are found in these pages
          */
-        controller.addSeed("http://localhost/FF/crawlme/index.html");
+        controller.addSeed("http://localhost/FF/crawlme/test2.html");
+        //controller.addSeed("http://localhost/FF/crawlme/index.html");
         //controller.addSeed("http://localhost/FF/redir/documentloc.html");
 
         
@@ -410,14 +465,16 @@ public class SiTree implements Observer, Iterable<Node>{
         System.out.printf("\t[Info] BFS:\n");
         for(Node n:siTree)
         {
-        	System.out.printf("\t\t%s(%s)\n", n.url.getURL(), n.isValid);
+        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
         }
         
+        // DFS
         siTree.iterWay = EIterWay.DFS;
         System.out.printf("\t[Info] DFS:\n");
         for(Node n:siTree)
         {
-        	System.out.printf("\t\t%s(%s)\n", n.url.getURL(), n.isValid);
+        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
         }
+        siTree.outputTo(new File("test"));
 	}	
 }

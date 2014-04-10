@@ -314,8 +314,11 @@ public class WebCrawler implements Runnable {
 				{
 					logger.warn(String.format("URL='%s' with Status Code=%d...", fetchResult.getOriginalURL(), fetchResult.getStatusCode()));
 				}
-				fail(curURL, fetchResult);
-				myController.fCallback(curURL, fetchResult);
+				//logger.warn(String.format("Fail on page=%s\n", curURL.getURL()));
+				if(curURL!=null) {
+					fail(curURL, fetchResult);
+					myController.fCallback(curURL, fetchResult);
+				}				
 				return;
 			} // if (statusCode != HttpStatus.SC_OK) 
 

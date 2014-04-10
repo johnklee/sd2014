@@ -18,6 +18,8 @@
 package edu.uci.ics.crawler4j.crawler;
 
 public class CrawlConfig {
+	public static int KB = 1024;
+	public static int MB = 1024*1024;
 
 	/**
 	 * The folder which will be used by crawler for storing the intermediate
@@ -94,7 +96,7 @@ public class CrawlConfig {
 	 * Max allowed size of a page. Pages larger than this size will not be
 	 * fetched.
 	 */
-	private int maxDownloadSize = 1048576;
+	private int maxDownloadSize = 1*MB;
 
 	/**
 	 * Should we follow redirects?
