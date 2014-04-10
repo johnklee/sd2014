@@ -152,6 +152,50 @@ public class FAST {
 	}
 	
 	@Test
+	public void testSiTree02()
+	{
+		System.out.printf("========== Testing SiTree API ==========\n");
+		long st = System.currentTimeMillis();
+		controller.addSeed("http://localhost/FF/crawlme/test/main.html");
+		SiTree siTree = new SiTree();
+        controller.addObserver(siTree);
+		System.out.printf("\t[Info] Starting Crawler...\n");      
+		controller.startNonBlocking(TestCrawler.class, numberOfCrawlers);
+		while(!controller.isFinished())
+		{
+			try{Thread.sleep(1000);} catch(Exception e){e.printStackTrace();}
+		}
+        //controller.start(TestCrawler.class, numberOfCrawlers);
+        System.out.printf("\t[Info] Done! %s\n", TimeStr.ToStringFrom(st));
+        controller.deleteObserver(siTree);
+        
+        assertEquals(10, siTree.nodeMap.size());
+        // Retrieve main page
+        Node node = siTree.nodeMap.get("http://localhost/FF/crawlme/test/main.html");
+        assertTrue(node!=null);
+        assertEquals(true, node.isValid);  		// Page is retrieved successfully
+        assertEquals(2, node.childs.size());	// Page has two child pages
+        
+        // Retrieve child page
+        Node aNode = node.childs.get("http://localhost/FF/crawlme/test/a.html");
+        assertTrue(aNode!=null);
+        assertEquals(true, aNode.isValid);
+        assertEquals(4, aNode.childs.size());
+        
+        // Retrieve child page of child page
+        Node n404 = aNode.childs.get("http://localhost/FF/SCServlet/404");
+        assertTrue(n404!=null);
+        assertEquals(false, n404.isValid);
+        assertEquals(404, n404.statusCode);
+        assertEquals(0, n404.childs.size());
+        
+        // Free resource
+        siTree.close();
+        assertEquals(0, siTree.nodeMap.size());
+        assertEquals(null, siTree.root);
+	}
+	
+	@Test
 	public void testSiTree01()
 	{
 		System.out.printf("========== Testing SiTree API ==========\n");

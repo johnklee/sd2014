@@ -210,6 +210,7 @@ public class SiTree implements Observer, Iterable<Node>{
 		{		
 			try
 			{
+				int dc=0;
 				HashMap<String,Integer> docMap = new HashMap<String,Integer>();
 				for(Node node:nodeMap.values())
 				{
@@ -222,12 +223,14 @@ public class SiTree implements Observer, Iterable<Node>{
 						FileOutputStream fos = new FileOutputStream(output);
 						fos.write(node.page.getContentData());
 						System.out.printf("\t[Test] Output %s...Done!\n", output.getAbsolutePath());
-						fos.close();						
+						fos.close();
+						dc++;
 					}
 				}
 				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(new File(dir, "DocMap.obj")));
 				oos.writeObject(docMap);
 				oos.close();
+				return dc;
 			}
 			catch(Exception e)
 			{
