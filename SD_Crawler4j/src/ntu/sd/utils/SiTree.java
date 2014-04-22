@@ -241,6 +241,8 @@ public class SiTree implements Observer, Iterable<Node>{
 		return -1;
 	}
 	
+	public BFSIter traverseBFS(){return new BFSIter(root);}
+	public DFSIter traverseDFS(){return new DFSIter(root);}
 	
 	public Node dfsSearchRC(String url){return _dfsSearchRC(root, url);}
 	protected Node _dfsSearchRC(Node node, String url)
@@ -455,11 +457,7 @@ public class SiTree implements Observer, Iterable<Node>{
         
         System.out.printf("\t[Info] Starting Crawler...\n");
         SiTree siTree = new SiTree();
-        controller.addObserver(siTree);
-        /*
-         * Start the crawl. This is a blocking operation, meaning that your code
-         * will reach the line after this only when crawling is finished.
-         */       
+        controller.addObserver(siTree);       
         controller.start(MyCrawler.class, numberOfCrawlers);
         System.out.printf("\t[Info] Done! %s\n", TimeStr.ToStringFrom(st));
         controller.deleteObserver(siTree);
