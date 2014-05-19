@@ -450,7 +450,7 @@ public class SiTree implements Observer, Iterable<Node>{
          * URLs that are fetched and then the crawler starts following links
          * which are found in these pages
          */
-        controller.addSeed("http://localhost/FF/crawlme/test2.html");
+        controller.addSeed("http://140.112.21.241:8000/");
         //controller.addSeed("http://localhost/FF/crawlme/index.html");
         //controller.addSeed("http://localhost/FF/redir/documentloc.html");
 
