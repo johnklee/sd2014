@@ -20,5 +20,6 @@
 	<classpathentry kind="lib" path="libs/tika-parsers-1.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/John/git/NTU/SD_Crawler4j/libs/Flib.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.junit.JUNIT_CONTAINER/4"/>
+	<classpathentry kind="lib" path="C:/Users/John/git/NTU/SD_Crawler4j/libs/jsoup-1.7.3.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

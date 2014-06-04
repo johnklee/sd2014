@@ -56,29 +56,32 @@ public class SiTree implements Observer, Iterable<Node>{
     	
     	public DFSIter(Node root)
     	{
-    		Set<Node> visitedSet = new HashSet<Node>();
-        	Stack<Node> stack = new Stack<Node>();
-    		this.root = root;
-    		stack.add(root);
-    		visitedSet.add(root);
-    		while(stack.size()>0)
-        	{
-        		Node next = null;
-        		for(Node n:stack.peek().childs.values())
-        		{
-        			if(!visitedSet.contains(n))
-        			{
-        				next = n;
-        				break;
-        			}
-        		}
-        		if(next!=null)
-        		{
-        			stack.add(next);
-    				visitedSet.add(next);
-        		}        		
-        		else list.add(stack.pop());
-        	}
+    		if(root!=null)
+    		{
+    			Set<Node> visitedSet = new HashSet<Node>();
+            	Stack<Node> stack = new Stack<Node>();
+        		this.root = root;
+        		stack.add(root);
+        		visitedSet.add(root);
+        		while(stack.size()>0)
+            	{
+            		Node next = null;
+            		for(Node n:stack.peek().childs.values())
+            		{
+            			if(!visitedSet.contains(n))
+            			{
+            				next = n;
+            				break;
+            			}
+            		}
+            		if(next!=null)
+            		{
+            			stack.add(next);
+        				visitedSet.add(next);
+            		}        		
+            		else list.add(stack.pop());
+            	}
+    		}
     	}
     	
 		@Override
@@ -102,7 +105,7 @@ public class SiTree implements Observer, Iterable<Node>{
 		
 		public BFSIter(Node root)
 		{
-			queue.add(root);
+			if(root!=null) queue.add(root);
 		}
 
 		@Override
@@ -461,6 +464,7 @@ public class SiTree implements Observer, Iterable<Node>{
         controller.start(MyCrawler.class, numberOfCrawlers);
         System.out.printf("\t[Info] Done! %s\n", TimeStr.ToStringFrom(st));
         controller.deleteObserver(siTree);
+        
         
         // BFS
         System.out.printf("\t[Info] BFS:\n");

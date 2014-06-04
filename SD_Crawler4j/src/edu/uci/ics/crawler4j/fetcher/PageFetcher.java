@@ -161,6 +161,7 @@ public class PageFetcher extends Configurable {
 			}
 			get.addHeader("Accept-Encoding", "gzip");
 			HttpResponse response = httpClient.execute(get);
+			
 			fetchResult.setEntity(response.getEntity());
 			fetchResult.setResponseHeaders(response.getAllHeaders());
 			

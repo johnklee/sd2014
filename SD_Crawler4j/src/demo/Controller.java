@@ -49,7 +49,7 @@ public class Controller {
          * Be polite: Make sure that we don't send more than 1 request per
          * second (1000 milliseconds between requests).
          */
-        config.setPolitenessDelay(1000);
+        config.setPolitenessDelay(100);
         
         /*
          * You can set the maximum number of pages to crawl. The default value

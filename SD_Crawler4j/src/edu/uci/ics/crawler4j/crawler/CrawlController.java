@@ -45,9 +45,9 @@ import edu.uci.ics.crawler4j.util.IO;
  * @author Yasser Ganjisaffar <lastname at gmail dot com>
  */
 public class CrawlController extends Configurable {
-	public static int				CheckOthersWait = 5;
-	public static int 	 			CleanUpWait = 5;
-	public static int				DConfirmWait = 5;
+	public static int				CheckOthersWait = 0;
+	public static int 	 			CleanUpWait = 0;
+	public static int				DConfirmWait = 0;
 	static final Logger 			logger = Logger.getLogger(CrawlController.class.getName());
 	public static CrawlerObservable	observable= new CrawlerObservable();
 
