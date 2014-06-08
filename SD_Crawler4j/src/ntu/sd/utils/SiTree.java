@@ -1,7 +1,11 @@
 package ntu.sd.utils;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectOutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +18,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.Stack;
 import java.util.TreeMap;
+import java.util.zip.GZIPInputStream;
 
 import ntu.sd.utils.SiTree.Node;
 
@@ -328,6 +333,33 @@ public class SiTree implements Observer, Iterable<Node>{
 		{
 			/*Page Done*/	
 			Page page = (Page)rt.get(1);
+			//System.out.printf("\t[Test] ContentType=%s\n", page.getContentType());
+			
+			/*if(page.getContentType().contains("text/html"))
+			{
+				if(page.getContentEncoding().equals("gzip"))
+				{
+					try
+					{
+						InputStream is = new ByteArrayInputStream(page.getContentData());
+						//GZIPInputStream gzipStream = new GZIPInputStream(is);
+						InputStreamReader reader = new InputStreamReader(is);
+						BufferedReader in = new BufferedReader(reader);
+
+						System.out.printf("\t[Test] Output Content:\n");
+						String readed;
+						while ((readed = in.readLine()) != null) {
+						    System.out.println(readed);
+						}
+					}
+					catch(Exception e)
+					{
+						e.printStackTrace();
+					}
+				}
+			}*/
+			
+			
 			WebURL url = page.getWebURL();
 			String purl=null;
 			if((purl=url.getParentUrl())==null)
@@ -453,7 +485,7 @@ public class SiTree implements Observer, Iterable<Node>{
          * URLs that are fetched and then the crawler starts following links
          * which are found in these pages
          */
-        controller.addSeed("http://140.112.21.241:8000/");
+        controller.addSeed("http://img.my.csdn.net/uploads/201210/17/1350451073_1480.gif");
         //controller.addSeed("http://localhost/FF/crawlme/index.html");
         //controller.addSeed("http://localhost/FF/redir/documentloc.html");
 

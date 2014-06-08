@@ -193,7 +193,7 @@ public class WorkQueues {
 	}
 
 	public void close() {
-		try {
+		try {			
 			urlsDB.close();
 		} catch (DatabaseException e) {
 			e.printStackTrace();
