@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import ntu.sd.utils.SiTree;
+import ntu.sd.utils.SiTree.EIterWay;
 import ntu.sd.utils.SiTree.Node;
 
 import org.apache.log4j.BasicConfigurator;
@@ -150,11 +151,31 @@ public class FAST {
         	//e.getValue().get
         }
 	}
+			
+	@Test
+	public void testSiTree03()
+	{
+		System.out.printf("========== Testing SiTree Dump API ==========\n");
+		long st = System.currentTimeMillis();
+		controller.addSeed("http://localhost/FF/crawlme/test/main.html");
+		SiTree siTree = new SiTree();
+        controller.addObserver(siTree);
+		System.out.printf("\t[Info] Starting Crawler...\n");      
+		controller.start(TestCrawler.class, numberOfCrawlers);		
+        System.out.printf("\t[Info] Done! %s\n", TimeStr.ToStringFrom(st));
+        controller.deleteObserver(siTree);
+        File dumpDir = new File("test");
+        for(File f:dumpDir.listFiles()) f.delete(); // Clean files
+        siTree.outputTo(dumpDir);
+        int fc=0;
+        for(File f:dumpDir.listFiles()) fc++;
+        assertEquals(10, fc);
+	}
 	
 	@Test
 	public void testSiTree02()
 	{
-		System.out.printf("========== Testing SiTree API ==========\n");
+		System.out.printf("========== Testing SiTree Iterate/Search API ==========\n");
 		long st = System.currentTimeMillis();
 		controller.addSeed("http://localhost/FF/crawlme/test/main.html");
 		SiTree siTree = new SiTree();
@@ -169,7 +190,7 @@ public class FAST {
         System.out.printf("\t[Info] Done! %s\n", TimeStr.ToStringFrom(st));
         controller.deleteObserver(siTree);
         
-        assertEquals(10, siTree.nodeMap.size());
+        assertEquals(11, siTree.nodeMap.size());
         // Retrieve main page
         Node node = siTree.nodeMap.get("http://localhost/FF/crawlme/test/main.html");
         assertTrue(node!=null);
@@ -180,7 +201,7 @@ public class FAST {
         Node aNode = node.childs.get("http://localhost/FF/crawlme/test/a.html");
         assertTrue(aNode!=null);
         assertEquals(true, aNode.isValid);
-        assertEquals(4, aNode.childs.size());
+        assertEquals(5, aNode.childs.size());
         
         // Retrieve child page of child page
         Node n404 = aNode.childs.get("http://localhost/FF/SCServlet/404");
@@ -188,6 +209,77 @@ public class FAST {
         assertEquals(false, n404.isValid);
         assertEquals(404, n404.statusCode);
         assertEquals(0, n404.childs.size());
+        
+        // Iterate child page with default algorithm - BFS       
+        System.out.printf("\t[Info] Iterate with BFS(while):\n");
+        Iterator<Node> iter = siTree.traverseBFS();
+        int lc=0;
+        while(iter.hasNext())
+        {        	
+        	Node n = iter.next();
+        	if(lc==0) assertEquals("http://localhost/FF/crawlme/test/main.html", n.page.getWebURL().getURL());
+        	if(n.isValid) System.out.printf("\t\t%s\n", n.page.getWebURL().getURL());        		
+        	else System.out.printf("\t\t%s\n", n.url.getURL());
+        	lc++;
+        }
+        assertEquals(11, lc);
+        System.out.printf("\t[Info] Iterate with BFS(for):\n");
+        lc=0;
+        for(Node n:siTree)
+        {
+        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
+        	lc++;
+        }
+        assertEquals(11, lc);
+        
+        // Iterate child page with algorithm - DFS
+        System.out.printf("\t[Info] Iterate with DFS(while):\n");
+        iter = siTree.traverseDFS();
+        lc=0;
+        while(iter.hasNext())
+        {
+        	Node n = iter.next();
+        	if(lc==0) assertEquals("http://localhost/FF/CTServlet?type=1", n.page.getWebURL().getURL());
+        	if(n.isValid) System.out.printf("\t\t%s\n", n.page.getWebURL().getURL());        		
+        	else System.out.printf("\t\t%s\n", n.url.getURL());
+        	lc++;
+        }
+        assertEquals(11, lc);
+        
+        lc=0;
+        siTree.iterWay = EIterWay.DFS;
+        System.out.printf("\t[Info] Iterate with DFS(for):\n");
+        for(Node n:siTree)
+        {
+        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
+        	lc++;
+        }
+        assertEquals(11, lc);
+        
+        // Search with BFS Search
+        Node node1 = siTree.bfsSearch("http://localhost/FF/crawlme/test/main.html");        
+        assertTrue(node1!=null);
+        node = siTree.bfsSearch("http://localhost/FF/crawlme/test/notexist");        
+        assertTrue(node==null);
+        node = siTree.bfsSearch("http://localhost/FF/SCServlet/404");
+        assertTrue(node!=null);
+        
+        // Search with DFS Search
+        Node node2 = siTree.dfsSearch("http://localhost/FF/EchoServlet/a1.html");        
+        assertTrue(node2!=null);
+        node = siTree.dfsSearch("http://localhost/FF/crawlme/test/notexist");        
+        assertTrue(node==null);
+        node = siTree.dfsSearch("http://localhost/FF/SCServlet/404");
+        assertTrue(node!=null);
+        assertTrue(!node1.equals(node2));
+        assertTrue(node1.compareTo(node2)>0);
+        
+        // Search recursive
+        Node node3 = siTree.dfsSearchRC("http://localhost/FF/EchoServlet/a1.html");
+        assertTrue(node3!=null);
+        node = siTree.dfsSearchRC("http://localhost/FF/crawlme/test/notexist");
+        assertTrue(node==null);
+        assertTrue(node2.equals(node3));
         
         // Free resource
         siTree.close();
@@ -208,7 +300,7 @@ public class FAST {
 		System.out.printf("\t[Info] Done! %s\n", TimeStr.ToStringFrom(st));
         controller.deleteObserver(siTree);
         
-        assertEquals(10, siTree.nodeMap.size());
+        assertEquals(11, siTree.nodeMap.size());
         // Retrieve main page
         Node node = siTree.nodeMap.get("http://localhost/FF/crawlme/test/main.html");
         assertTrue(node!=null);
@@ -219,7 +311,7 @@ public class FAST {
         Node aNode = node.childs.get("http://localhost/FF/crawlme/test/a.html");
         assertTrue(aNode!=null);
         assertEquals(true, aNode.isValid);
-        assertEquals(4, aNode.childs.size());
+        assertEquals(5, aNode.childs.size());
         
         // Retrieve child page of child page
         Node n404 = aNode.childs.get("http://localhost/FF/SCServlet/404");

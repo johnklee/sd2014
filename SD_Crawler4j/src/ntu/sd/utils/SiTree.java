@@ -51,7 +51,7 @@ public class SiTree implements Observer, Iterable<Node>{
 	}
 	
 	public enum EIterWay{
-		BFS,DFS
+		BFS,DFS,OTH
 	}
 	
 	public class DFSIter implements Iterator<Node>
@@ -140,8 +140,9 @@ public class SiTree implements Observer, Iterable<Node>{
 			return new BFSIter(root);			
 		case DFS:
 			return new DFSIter(root);
-		}
-		return null;
+		default:
+			return new BFSIter(root);
+		}		
 	}
 	
 	public static class Node implements Comparable<Node>{	
@@ -255,7 +256,7 @@ public class SiTree implements Observer, Iterable<Node>{
 	public Node dfsSearchRC(String url){return _dfsSearchRC(root, url);}
 	protected Node _dfsSearchRC(Node node, String url)
     {
-    	if(node.url.equals(url)) return node;
+    	if(node.url.getURL().equals(url)) return node;    	
     	Node tn=null;
     	for(Node n:node.childs.values())
     	{
@@ -269,11 +270,13 @@ public class SiTree implements Observer, Iterable<Node>{
     {
     	Set<Node> visitedSet = new HashSet<Node>();
     	Stack<Node> stack = new Stack<Node>();
-    	if(node.url.equals(url)) return node;
-    	else {
-    		stack.add(node);
-    		visitedSet.add(node);
-    	}
+
+    	//if(node.isValid) {if(node.page.getWebURL().getURL().equals(url)) return node;}
+		//else {}
+    	if(node.url.getURL().equals(url)) return node;
+    	
+    	stack.add(node);
+		visitedSet.add(node);
     	while(stack.size()>0)
     	{
     		Node next = null;
@@ -287,12 +290,10 @@ public class SiTree implements Observer, Iterable<Node>{
     		}
     		if(next!=null)
     		{
-    			if(next.url.equals(url)) return next;
-    			else 
-    			{
-    				stack.add(next);
-    				visitedSet.add(next);
-    			}
+    			if(next.isValid) {if(next.page.getWebURL().getURL().equals(url)) return next;}
+    			else {if(next.url.getURL().equals(url)) return next;}    			    			    	    	    	    	   		
+    	    	stack.add(next);
+				visitedSet.add(next);
     		}
     		else
     		{
@@ -310,7 +311,10 @@ public class SiTree implements Observer, Iterable<Node>{
     	while(!queue.isEmpty())
     	{
     		Node pnode = queue.poll();
-    		if(pnode.url.equals(url)) return pnode;
+    		System.out.printf("\t[Test] Check '%s'...\n", pnode.url.getURL());
+    		//if(pnode.isValid) if(pnode.page.getWebURL().getURL().equals(url)) return pnode;
+    		//else {}
+    		if(pnode.url.getURL().equals(url)) return pnode;
     		queue.addAll(pnode.childs.values());
     	}
     	return null;
@@ -334,32 +338,7 @@ public class SiTree implements Observer, Iterable<Node>{
 			/*Page Done*/	
 			Page page = (Page)rt.get(1);
 			//System.out.printf("\t[Test] ContentType=%s\n", page.getContentType());
-			
-			/*if(page.getContentType().contains("text/html"))
-			{
-				if(page.getContentEncoding().equals("gzip"))
-				{
-					try
-					{
-						InputStream is = new ByteArrayInputStream(page.getContentData());
-						//GZIPInputStream gzipStream = new GZIPInputStream(is);
-						InputStreamReader reader = new InputStreamReader(is);
-						BufferedReader in = new BufferedReader(reader);
-
-						System.out.printf("\t[Test] Output Content:\n");
-						String readed;
-						while ((readed = in.readLine()) != null) {
-						    System.out.println(readed);
-						}
-					}
-					catch(Exception e)
-					{
-						e.printStackTrace();
-					}
-				}
-			}*/
-			
-			
+									
 			WebURL url = page.getWebURL();
 			String purl=null;
 			if((purl=url.getParentUrl())==null)
@@ -413,105 +392,5 @@ public class SiTree implements Observer, Iterable<Node>{
 				}
 			}
 		}
-	}
-	
-	public static void main(String args[]) throws Exception
-	{
-		/* 0) Configure Log4j*/
-		File log4j = new File("log4j.properties");
-		if(log4j.exists())
-		{
-			PropertyConfigurator.configure(log4j.getAbsolutePath()); 
-		}
-		else
-		{
-			BasicConfigurator.configure();  
-		}
-		
-		long st = System.currentTimeMillis();
-
-		// crawlStorageFolder is a folder where intermediate crawl data is stored.
-        String crawlStorageFolder = "C:/tmp/crawler_tmp/";
-        
-        // numberOfCrawlers shows the number of concurrent threads that should
-        // be initiated for crawling.
-        int numberOfCrawlers = 7;
-
-        CrawlConfig config = new CrawlConfig();        
-        config.setCrawlStorageFolder(crawlStorageFolder);
-        
-        /*
-         * Be polite: Make sure that we don't send more than 1 request per
-         * second (1000 milliseconds between requests).
-         */
-        config.setPolitenessDelay(1000);
-        
-        /*
-         * You can set the maximum number of pages to crawl. The default value
-         * is -1 for unlimited number of pages
-         */
-        config.setMaxPagesToFetch(1000);
-        
-        /*
-         * Do you need to set a proxy? If so, you can use:
-         * config.setProxyHost("proxyserver.example.com");
-         * config.setProxyPort(8080);
-         * 
-         * If your proxy also needs authentication:
-         * config.setProxyUsername(username); config.getProxyPassword(password);
-         */
-        
-        /*
-         * This config parameter can be used to set your crawl to be resumable
-         * (meaning that you can resume the crawl from a previously
-         * interrupted/crashed crawl). Note: if you enable resuming feature and
-         * want to start a fresh crawl, you need to delete the contents of
-         * rootFolder manually.
-         */
-        config.setResumableCrawling(false);
-        config.setIncludeBinaryContentInCrawling(true);
-        config.setMaxDownloadSize(10*config.MB);
-        
-        /*
-         * Instantiate the controller for this crawl.
-         */
-        PageFetcher pageFetcher = new PageFetcher(config);
-        RobotstxtConfig robotstxtConfig = new RobotstxtConfig();
-        RobotstxtServer robotstxtServer = new RobotstxtServer(robotstxtConfig, pageFetcher);
-        CrawlController controller = new CrawlController(config, pageFetcher, robotstxtServer);
-
-        /*
-         * For each crawl, you need to add some seed urls. These are the first
-         * URLs that are fetched and then the crawler starts following links
-         * which are found in these pages
-         */
-        controller.addSeed("http://img.my.csdn.net/uploads/201210/17/1350451073_1480.gif");
-        //controller.addSeed("http://localhost/FF/crawlme/index.html");
-        //controller.addSeed("http://localhost/FF/redir/documentloc.html");
-
-        
-        System.out.printf("\t[Info] Starting Crawler...\n");
-        SiTree siTree = new SiTree();
-        controller.addObserver(siTree);       
-        controller.start(MyCrawler.class, numberOfCrawlers);
-        System.out.printf("\t[Info] Done! %s\n", TimeStr.ToStringFrom(st));
-        controller.deleteObserver(siTree);
-        
-        
-        // BFS
-        System.out.printf("\t[Info] BFS:\n");
-        for(Node n:siTree)
-        {
-        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
-        }
-        
-        // DFS
-        siTree.iterWay = EIterWay.DFS;
-        System.out.printf("\t[Info] DFS:\n");
-        for(Node n:siTree)
-        {
-        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
-        }
-        siTree.outputTo(new File("test"));
 	}	
 }

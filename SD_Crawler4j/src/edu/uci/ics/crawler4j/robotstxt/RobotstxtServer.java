@@ -38,7 +38,7 @@ public class RobotstxtServer {
 
 	protected RobotstxtConfig config;
 
-	protected final Map<String, HostDirectives> host2directivesCache = new HashMap<>();
+	protected final Map<String, HostDirectives> host2directivesCache = new HashMap<String, HostDirectives>();
 
 	protected PageFetcher pageFetcher;
 

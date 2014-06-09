@@ -118,7 +118,7 @@ public class Parser extends Configurable {
 		parseData.setText(contentHandler.getBodyText().trim());
 		parseData.setTitle(metadata.get(DublinCore.TITLE));
 
-		List<WebURL> outgoingUrls = new ArrayList<>();
+		List<WebURL> outgoingUrls = new ArrayList<WebURL>();
 
 		String baseURL = contentHandler.getBaseUrl();
 		if (baseURL != null) {

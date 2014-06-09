@@ -17,7 +17,7 @@ public class TLDList {
 	public static String 	TldFilePath = "tld-names.txt";	
 	private static TLDList 	instance = null;
 	Logger  				logger = Logger.getLogger(TLDList.class);
-	private Set<String> 	tldSet = new HashSet<>();	
+	private Set<String> 	tldSet = new HashSet<String>();	
 
 	private TLDList() {
 		try {
