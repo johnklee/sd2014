@@ -2,3 +2,8 @@
 /doc
 /apidoc
 /SD_Crawler4j.jar
+/instrumented
+/reports
+/runCobertura1.bat
+/runCobertura2.bat
+/runCobertura3.bat

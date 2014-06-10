@@ -110,7 +110,7 @@ public class SiTreeDemo {
         System.out.printf("\t[Info] BFS:\n");
         for(Node n:siTree)
         {
-        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
+        	System.out.printf("\t\t%s(%s %s, id=%d)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode), n.url.getDocid());
         }
         
         // DFS
@@ -118,7 +118,7 @@ public class SiTreeDemo {
         System.out.printf("\t[Info] DFS:\n");
         for(Node n:siTree)
         {
-        	System.out.printf("\t\t%s(%s%s)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode));
+        	System.out.printf("\t\t%s(%s %s, id=%d)\n", n.url.getURL(), n.isValid, n.isValid?"":String.format("%d", n.statusCode), n.url.getDocid());
         }
         siTree.outputTo(new File("test"));
         
